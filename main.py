@@ -8,6 +8,8 @@ import psutil
 
 token = None
 prefix = None
+iptoken = None
+admin_role = None
 intents = discord.Intents.default()
 intents.message_content = True
 start_time = None
@@ -19,16 +21,29 @@ if os.path.isfile("config.json"):
         data = json.load(f)
     token = data.get("token")
     prefix = data.get("prefix")
+    iptoken = data.get("iptoken")
+    admin_role = int(data.get("admin_id"))
     bot = commands.Bot(command_prefix=prefix, intents=intents)
 else:
     config_data = {
         "token": "your_token_here",
-        "prefix": "!"
+        "prefix": "!",
+        "iptoken": "ip_info_token_here",
+        "admin_id": "id_here"
     }
     with open('config.json', 'w') as f:
         json.dump(config_data, f, indent=4)
     print("Bad, created.")
-
+def get_ip_info(ip):
+    url = f"https://ipinfo.io/{ip}?token={iptoken}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        country = data.get('country', 'IDK')
+        timezone = data.get('timezone', 'IDK')
+        return country, timezone
+    else:
+        return None, None
 def check():
     try:
         response = requests.get("http://121.127.37.17:1212/status")
@@ -127,4 +142,14 @@ async def stats(ctx):
     hours, remainder = divmod(int(uptime_duration.total_seconds()), 3600)
     minutes, seconds = divmod(remainder, 60)
     await ctx.send(f"Бот работает: {hours}h {minutes}mins {seconds}sec\nCPUe: {cpu_percent:.2f}%\nRAM: {used_memory:.2f}/{total_memory:.2f} MB")
+@bot.command()
+async def ip(ctx, ip: str):
+    if discord.utils.get(ctx.author.roles, id=admin_role):
+        country, timezone = get_ip_info(ip)
+        if country and timezone:
+            await ctx.reply(f"{country}\n{timezone}")
+        else:
+            await ctx.reply(f"Не удалось получить информацию для IP.")
+    else:
+        await ctx.send("У вас нет доступа.")
 bot.run(token)
