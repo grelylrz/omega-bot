@@ -1,0 +1,6 @@
+{
+    "token": "bot_token"
+    "prefix": "!",
+    "iptoken": "ip_info_token_here",
+    "admin_id": "admin_role"
+}
