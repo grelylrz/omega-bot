@@ -10,6 +10,7 @@ token = None
 prefix = None
 iptoken = None
 admin_role = None
+runned_cmds = 0
 intents = discord.Intents.default()
 intents.message_content = True
 start_time = None
@@ -88,23 +89,14 @@ def check():
 @bot.event
 async def on_ready():
     print(f'Bot {bot.user} ready!')
-    await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="OmegeDuty, players: not initialized"))
+    await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="OmegeDuty"))
     global start_time
     start_time = datetime.now()
+    #print(sum(guild.member_count for guild in bot.guilds))
 @bot.event
-async def on_message(message: discord.Message):
-    if message.author.bot:
-        return
-    if message.author.id == TARGET_USER_ID:
-        if not any(punct in message.content for punct in [".", "?", "!"]):
-            try:
-                await message.delete()
-                corrected_message = message.content + "."
-                await message.channel.send(f"Grely: {corrected_message}")
-            except discord.Forbidden:
-                print("Прав нет.")
-            except discord.HTTPException as e:
-                print(f"але говнокодер: {e}")
+async def on_command(ctx):
+    global runned_cmds
+    runned_cmds+= 1
 @bot.command()
 async def status(ctx):
     status = check()
@@ -136,7 +128,6 @@ async def status(ctx):
         embed.add_field(name="Раунд стартовал в:", value=round_start, inline=True)
 
         await ctx.reply(embed=embed)
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name=f"OmegeDuty, players: {players}"))
     else:
         embed = discord.Embed(
             title="Error.",
@@ -155,7 +146,8 @@ async def stats(ctx):
     uptime_duration = current_time - start_time
     hours, remainder = divmod(int(uptime_duration.total_seconds()), 3600)
     minutes, seconds = divmod(remainder, 60)
-    await ctx.send(f"Бот работает: {hours}h {minutes}mins {seconds}sec\nCPUe: {cpu_percent:.2f}%\nRAM: {used_memory:.2f}/{total_memory:.2f} MB")
+    unique_userz = sum(guild.member_count for guild in bot.guilds)
+    await ctx.send(f"Бот работает: {hours}h {minutes}mins {seconds}sec\nЗапущено команд: {runned_cmds}\nУникальных юзеров: {unique_userz}\nCPU: {cpu_percent:.2f}%\nRAM: {used_memory:.2f}/{total_memory:.2f} MB")
 @bot.command()
 async def ip(ctx, ip: str):
     if discord.utils.get(ctx.author.roles, id=admin_role):
