@@ -13,6 +13,7 @@ admin_role = None
 intents = discord.Intents.default()
 intents.message_content = True
 start_time = None
+TARGET_USER_ID = 1284441087745851474
 
 print("File...")
 if os.path.isfile("config.json"):
@@ -90,7 +91,20 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="OmegeDuty, players: not initialized"))
     global start_time
     start_time = datetime.now()
-
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author.bot:
+        return
+    if message.author.id == TARGET_USER_ID:
+        if not any(punct in message.content for punct in [".", "?", "!"]):
+            try:
+                await message.delete()
+                corrected_message = message.content + "."
+                await message.channel.send(f"Grely: {corrected_message}")
+            except discord.Forbidden:
+                print("Прав нет.")
+            except discord.HTTPException as e:
+                print(f"але говнокодер: {e}")
 @bot.command()
 async def status(ctx):
     status = check()
