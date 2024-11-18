@@ -36,16 +36,14 @@ else:
     with open('config.json', 'w') as f:
         json.dump(config_data, f, indent=4)
     print("Bad, created.")
-def get_ip_info(ip):
+async def get_ip_info(ip):
     url = f"https://ipinfo.io/{ip}?token={iptoken}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        country = data.get('country', 'IDK')
-        timezone = data.get('timezone', 'IDK')
-        return country, timezone
-    else:
-        return None, None
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                return data.get('country', 'IDK'), data.get('timezone', 'IDK')
+            return None, None
 def check():
     try:
         response = requests.get("http://121.127.37.17:1212/status")
@@ -55,12 +53,12 @@ def check():
             try:
                 data = response.json()
                 #print(f"Received Data: {data}")
-                name = data.get("name", "Неизвестное название")
+                name = data.get("name", "idk")
                 players = data.get("players", 0)
-                map_name = data.get("map", "Неизвестная карта")
-                round_id = data.get("round_id", "Неизвестный раунд")
-                run_level = data.get("run_level", "Неизвестный уровень")
-                preset = data.get("preset", "Неизвестный режим")
+                map_name = data.get("map", "idk")
+                round_id = data.get("round_id", "idk")
+                run_level = data.get("run_level", "idk")
+                preset = data.get("preset", "idk")
                 round_start_time = data.get("round_start_time", None)
                 if round_start_time:
                     round_start_time_obj = datetime.fromisoformat(round_start_time.rstrip('Z'))
@@ -110,13 +108,13 @@ async def status(ctx):
         players = status['players']
         if islobby == 1:
             islobby = "Нет"
-        elif islobby == 1:
+        elif islobby == 0:
             islobby = "Да"
         else:
             islobby = "idk"
         embed = discord.Embed(
             title="Статус",
-            description="beta",
+            description="Время не по мск.",
             color=discord.Color.green()
         )
         embed.add_field(name="Название:", value=name, inline=True)
