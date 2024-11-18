@@ -5,6 +5,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 import psutil
+import aiohttp
 
 token = None
 prefix = None
@@ -42,8 +43,11 @@ async def get_ip_info(ip):
         async with session.get(url) as response:
             if response.status == 200:
                 data = await response.json()
-                return data.get('country', 'IDK'), data.get('timezone', 'IDK')
-            return None, None
+                country = data.get('country', 'IDK')
+                timezone = data.get('timezone', 'IDK')
+                return country, timezone
+            else:
+                return None, None
 def check():
     try:
         response = requests.get("http://121.127.37.17:1212/status")
@@ -87,7 +91,7 @@ def check():
 @bot.event
 async def on_ready():
     print(f'Bot {bot.user} ready!')
-    await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="OmegeDuty"))
+    await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Да."))
     global start_time
     start_time = datetime.now()
     #print(sum(guild.member_count for guild in bot.guilds))
@@ -149,7 +153,7 @@ async def stats(ctx):
 @bot.command()
 async def ip(ctx, ip: str):
     if discord.utils.get(ctx.author.roles, id=admin_role):
-        country, timezone = get_ip_info(ip)
+        country, timezone = await get_ip_info(ip)
         if country and timezone:
             await ctx.reply(f"{country}\n{timezone}")
         else:
