@@ -11,6 +11,7 @@ token = None
 prefix = None
 iptoken = None
 admin_role = None
+watchdog_role = None
 runned_cmds = 0
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,13 +27,15 @@ if os.path.isfile("config.json"):
     prefix = data.get("prefix")
     iptoken = data.get("iptoken")
     admin_role = int(data.get("admin_id"))
+    watchdog_role = int(data.get("watchdog_role"))
     bot = commands.Bot(command_prefix=prefix, intents=intents)
 else:
     config_data = {
         "token": "your_token_here",
         "prefix": "!",
         "iptoken": "ip_info_token_here",
-        "admin_id": "id_here"
+        "admin_id": "id_here",
+        "watchdog_role": "your shiza's role here"
     }
     with open('config.json', 'w') as f:
         json.dump(config_data, f, indent=4)
@@ -160,4 +163,17 @@ async def ip(ctx, ip: str):
             await ctx.reply(f"Не удалось получить информацию для IP.")
     else:
         await ctx.send("У вас нет доступа.")
+#@bot.command()
+#async def ip(ctx, ip: str):
+#    if discord.utils.get(ctx.author.roles, id=watchdog_role):
+#        cur_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+#        os.system(f"mkdir build{cur_time}")
+#        os.system(f"cd build{cur_time}")
+#        os.system("git clone https://github.com/grelylrz/space-station-14-2")
+#        os.system("cd space-station-14-2")
+#        os.system(f"python ./RUN_THIS.py")
+#        os.system(f"git submodule update --init --recursive")
+#        os.system(f"dotnet build --configuration Release")
+#    else:
+#        await ctx.send("У вас нет доступа.")
 bot.run(token)
