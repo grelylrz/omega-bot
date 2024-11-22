@@ -17,6 +17,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 start_time = None
 TARGET_USER_ID = 1284441087745851474
+server_dir = "/space-station-14/bin/Content.Server/"
+server_run = "./space-station-14/bin/Content.Server/Content.Server"
 
 print("File...")
 if os.path.isfile("config.json"):
@@ -114,11 +116,13 @@ async def status(ctx):
         round_start = status['round_start_time']
         players = status['players']
         if islobby == 1:
-            islobby = "Нет"
+            islobby = "Нет."
         elif islobby == 0:
-            islobby = "Да"
+            islobby = "Да."
+        elif islobby = 2:
+            islobby = "Пре-раунд."
         else:
-            islobby = "idk"
+            islobby = islobby + " бот не смог определить,я трещу!"
         embed = discord.Embed(
             title="Статус",
             description="Время не по мск.",
@@ -176,4 +180,20 @@ async def ip(ctx, ip: str):
 #        os.system(f"dotnet build --configuration Release")
 #    else:
 #        await ctx.send("У вас нет доступа.")
+@bot.command()
+async def start(ctx):
+    global server_process
+    if server_process and server_process.poll() is None:
+        await ctx.send("Сервер уже запущен, вы глупи?")
+        return
+    try:
+        server_process = subprocess.Popen(
+            server_run.split(),
+            cwd=server_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        await ctx.send("Запускаю!")
+    except Exception as e:
+        await ctx.send(f"Я ТРЕЩУ ПО ШВАМ!")
 bot.run(token)
