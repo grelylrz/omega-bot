@@ -180,20 +180,20 @@ async def ip(ctx, ip: str):
 #        os.system(f"dotnet build --configuration Release")
 #    else:
 #        await ctx.send("У вас нет доступа.")
-@bot.command()
-async def start(ctx):
-    global server_process
-    if server_process and server_process.poll() is None:
-        await ctx.send("Сервер уже запущен, вы глупи?")
-        return
-    try:
-        server_process = subprocess.Popen(
-            server_run.split(),
-            cwd=server_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        await ctx.send("Запускаю!")
-    except Exception as e:
-        await ctx.send(f"Я ТРЕЩУ ПО ШВАМ!")
+#@bot.command()
+#async def start(ctx):
+#    global server_process
+#    if server_process and server_process.poll() is None:
+#        await ctx.send("Сервер уже запущен, вы глупи?")
+#        return
+#    try:
+#        server_process = subprocess.Popen(
+#            server_run.split(),
+#            cwd=server_dir,
+#            stdout=subprocess.PIPE,
+#            stderr=subprocess.PIPE
+#        )
+#        await ctx.send("Запускаю!")
+#    except Exception as e:
+#        await ctx.send(f"Я ТРЕЩУ ПО ШВАМ!")
 bot.run(token)
