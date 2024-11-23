@@ -6,12 +6,14 @@ import discord
 from discord.ext import commands
 import psutil
 import aiohttp
+import yandex_music
 
 token = None
 prefix = None
 iptoken = None
 admin_role = None
 watchdog_role = None
+music_token = None
 runned_cmds = 0
 intents = discord.Intents.default()
 intents.message_content = True
@@ -29,15 +31,18 @@ if os.path.isfile("config.json"):
     prefix = data.get("prefix")
     iptoken = data.get("iptoken")
     admin_role = int(data.get("admin_id"))
+    music_token = data.get("music_token")
     watchdog_role = int(data.get("watchdog_role"))
     bot = commands.Bot(command_prefix=prefix, intents=intents)
+    yandex_client = yandex_music.Client(music_token).init()
 else:
     config_data = {
         "token": "your_token_here",
         "prefix": "!",
         "iptoken": "ip_info_token_here",
         "admin_id": "id_here",
-        "watchdog_role": "your shiza's role here"
+        "watchdog_role": "your shiza's role here",
+        "music_token": "your yandex music token here"
     }
     with open('config.json', 'w') as f:
         json.dump(config_data, f, indent=4)
@@ -119,7 +124,7 @@ async def status(ctx):
             islobby = "Нет."
         elif islobby == 0:
             islobby = "Да."
-        elif islobby = 2:
+        elif islobby == 2:
             islobby = "Пре-раунд."
         else:
             islobby = islobby + " бот не смог определить,я трещу!"
@@ -196,4 +201,65 @@ async def ip(ctx, ip: str):
 #        await ctx.send("Запускаю!")
 #    except Exception as e:
 #        await ctx.send(f"Я ТРЕЩУ ПО ШВАМ!")
+@bot.command()
+async def leave(ctx):
+    if ctx.voice_client:
+        await ctx.voice_client.disconnect()
+        await ctx.send("Я отключился от голосового канала!")
+    else:
+        await ctx.send("Я не нахожусь в голосовом канале!")
+
+@bot.command()
+async def play(ctx, *, track_name: str):
+    if not ctx.author.voice:
+        await ctx.send("Вы должны быть в голосовом канале!")
+        return
+
+    if not ctx.voice_client:
+        channel = ctx.author.voice.channel
+        await channel.connect()
+        await ctx.send(f"Подключился: {channel.name}")
+
+    try:
+        search_result = yandex_client.search(track_name)
+        tracks = search_result.tracks.results
+        if not tracks:
+            await ctx.send(f"'{track_name}' не нашелся.")
+            return
+        track = tracks[0]
+        filename = f"{track.id}.mp3"
+        await ctx.send(f"Нашёл: {track.title} — {', '.join(artist.name for artist in track.artists)}")
+        track.download(filename, codec='mp3', bitrate_in_kbps=192)
+        ctx.voice_client.stop()
+        ffmpeg_options = {'options': '-vn'}
+        source = discord.FFmpegPCMAudio(filename, **ffmpeg_options)
+        ctx.voice_client.play(source, after=lambda e: print(f"Я трещу!: " if e else "Воспроизведение завершено"))
+    except Exception as e:
+        await ctx.send(f"Я трещу!")
+        print(f"Ошибка: {e}")
+@bot.command()
+async def status(ctx, status_type: str, *, message: str):
+    """Меняет статус бота (только для пользователей с определённой ролью).
+    Использование: !status [online|idle|dnd|invisible] [текст статуса]
+    """
+    # Проверяем, есть ли у пользователя нужная роль
+    if discord.utils.get(ctx.author.roles, id=watchdog_role):
+        status_mapping = {
+            "online": discord.Status.online,
+            "idle": discord.Status.idle,
+            "dnd": discord.Status.dnd,
+            "invisible": discord.Status.invisible,
+        }
+
+        activity = discord.Game(name=message)
+        new_status = status_mapping.get(status_type.lower())
+
+        if not new_status:
+            await ctx.send("Ты трещишь на меня: online, idle, dnd, invisible.")
+            return
+
+        await bot.change_presence(status=new_status, activity=activity)
+        await ctx.send(f"Done.")
+    else:
+        await ctx.send("Ты трещишь!")
 bot.run(token)
