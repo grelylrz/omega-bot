@@ -239,10 +239,6 @@ async def play(ctx, *, track_name: str):
         print(f"Ошибка: {e}")
 @bot.command()
 async def status(ctx, status_type: str, *, message: str):
-    """Меняет статус бота (только для пользователей с определённой ролью).
-    Использование: !status [online|idle|dnd|invisible] [текст статуса]
-    """
-    # Проверяем, есть ли у пользователя нужная роль
     if discord.utils.get(ctx.author.roles, id=watchdog_role):
         status_mapping = {
             "online": discord.Status.online,
@@ -250,14 +246,12 @@ async def status(ctx, status_type: str, *, message: str):
             "dnd": discord.Status.dnd,
             "invisible": discord.Status.invisible,
         }
-
         activity = discord.Game(name=message)
         new_status = status_mapping.get(status_type.lower())
 
         if not new_status:
             await ctx.send("Ты трещишь на меня: online, idle, dnd, invisible.")
             return
-
         await bot.change_presence(status=new_status, activity=activity)
         await ctx.send(f"Done.")
     else:
