@@ -32,7 +32,7 @@ def list_files():
     except FileNotFoundError:
         return abort(404, description="Directory not found")
     
-    return render_template('wiki_list.html', files=files)
+    return render_template('wiki.html', files=files)
 
 @app.errorhandler(404)
 def page_not_found(e):
