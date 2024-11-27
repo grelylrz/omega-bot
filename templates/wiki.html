@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omegaduty - список файлов вики</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #505050; /* Серый фон */
+            color: #FFFFFF; /* Белый текст */
+        }
+        header {
+            background-color: #505050; /* Темно-серый */
+            color: #D1D1D1; /* Светло-серый текст */
+            padding: 15px 0;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #D1D1D1; /* Светло-серый */
+            font-weight: bold;
+        }
+        section {
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 800px;
+            background-color: #505050; /* Серый для контента */
+            color: #D1D1D1; /* Светло-серый текст */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #D1D1D1; /* Светло-серый */
+        }
+        p {
+            line-height: 1.6;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a.file-link {
+            color: #D1D1D1; /* Светло-серый */
+            text-decoration: none;
+        }
+        a.file-link:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #505050; /* Темно-серый */
+            color: #D1D1D1; /* Светло-серый */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Wiki files</h1>
+    </header>
+    <section>
+        <h2>Список страниц</h2>
+        <ul>
+            {% for file in files %}
+                <li><a class="file-link" href="{{ url_for('serve_file', filename=file) }}">{{ file }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+    <footer>
+        <p>&copy; 2024 OmegaDuty, no license</p>
+    </footer>
+</body>
+</html>
