@@ -2,7 +2,8 @@ from flask import Flask, render_template, abort, send_from_directory, url_for, j
 import os
 from socket import gaierror
 
-sesid = None
+# взято с моего другого проекта
+
 app = Flask(__name__)
 
 wiki_folder = './wiki_files'
