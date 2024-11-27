@@ -1,17 +1,14 @@
 from flask import Flask, render_template, abort, send_from_directory, url_for, jsonify
 import os
 from socket import gaierror
-from s import Server  # Импортируем класс Server из s.py
 
 sesid = None
 app = Flask(__name__)
 
-# Папка для статических файлов
 wiki_folder = './wiki_files'
 resources = './templates'
 staticf = './static'
 
-# Разрешенные расширения файлов
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'txt', 'html'}
 
 def is_allowed_file(filename):
@@ -23,7 +20,7 @@ def serve_file(filename):
         return abort(404, description="File type not allowed")
     
     try:
-        return send_from_directory(cdn_folder, filename)
+        return send_from_directory(wiki_folder, filename)
     except FileNotFoundError:
         return abort(404, description="File not found")
 
